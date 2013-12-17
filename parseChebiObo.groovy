@@ -57,8 +57,8 @@ new File(locationOboFile).eachLine { oboLine ->
 
 		if (oboLine.size() > 5 && oboLine[0..3] == 'id: '){
 			chebiId = oboLine[4..-1]
-			chemspiderId = cheb2chem[chebiId] ?: ''
-			cwUuidFromChemspideId = getCWuuidFromChemspideId(chemspiderId) ?: ''
+			chemspiderId = cheb2chem[chebiId] ?: '.'
+			cwUuidFromChemspideId = getCWuuidFromChemspideId(chemspiderId) ?: '.'
 		}
 
 		if (oboLine.size() > 5 && oboLine[0..5] == 'name: '){
@@ -127,7 +127,7 @@ new File(locationOboFile).eachLine { oboLine ->
 				def chemspiderMeshHit = 0
 				if (
 					(lineScore <= 2) &&
-					(it.split("\t")[-4] != '') && (
+					(it.split("\t")[-4] != '.') && (
 						(it.split("\t")[-4] == it.split("\t")[-3]) ||
 						(it.split("\t")[-4] == it.split("\t")[-2])
 					)
@@ -151,6 +151,10 @@ new File(locationOboFile).eachLine { oboLine ->
 
 def getUrlContents(String url){
 
+	return new URL(url)?.text ?: ''
+
+	///////// ignore the rest
+
 	// cache it
 	def filenameFromUrl = url.replace('http://conceptwiki.nbiceng.net/web-ws/concept/search?q=', 'cw_')
 	filenameFromUrl = filenameFromUrl.replace('http://www.nlm.nih.gov/cgi/mesh/2013/MB_cgi?mode=&term=', 'nlm_')
@@ -163,7 +167,7 @@ def getUrlContents(String url){
 		if (cacheFile.exists()){
 
 			//println "from cache ${url} ... "
-			//return cacheFile.text
+			return cacheFile.text
 		}
 	} catch(e) {
 		// sometimes the name is too long for caching, then we ignore it and keep fetching it from the internet
@@ -180,7 +184,7 @@ def getUrlContents(String url){
 	}
 
 	try {
-		cacheFile << urlContents
+		//cacheFile << urlContents
 	} catch(e){
 		println "Was unable to cache it: ${e}"
 	}
@@ -192,10 +196,10 @@ def getUrlContents(String url){
 def getMeshDetailsFromHtml(String html){
 
 	def meshDetails = [:]
-	meshDetails['meshId'] = getMeshId(html) ?: ''
-	meshDetails['meshName'] = getMeshName(html) ?: ''
-	meshDetails['uuidFromMeshWithIdAndName'] = getCWuuid(meshDetails['meshId'] + ' ' + meshDetails['meshName']) ?: ''
-	meshDetails['uuidFromMeshWithName'] = getCWuuid(meshDetails['meshName']) ?: ''
+	meshDetails['meshId'] = getMeshId(html) ?: '.'
+	meshDetails['meshName'] = getMeshName(html) ?: '.'
+	meshDetails['uuidFromMeshWithIdAndName'] = getCWuuid(meshDetails['meshId'] + ' ' + meshDetails['meshName']) ?: '.'
+	meshDetails['uuidFromMeshWithName'] = getCWuuid(meshDetails['meshName']) ?: '.'
 
 	return meshDetails
 }
